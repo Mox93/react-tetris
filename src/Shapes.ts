@@ -1,4 +1,55 @@
-import { Shape } from "models";
+import { Shape, WallKickTable } from "models";
+
+const wallKickTable: WallKickTable = {
+  "0>>1": [
+    { x: -1, y: 0 },
+    { x: -1, y: 1 },
+    { x: 0, y: -2 },
+    { x: -1, y: -2 },
+  ],
+  "1>>0": [
+    { x: 1, y: 0 },
+    { x: 1, y: -1 },
+    { x: 0, y: 2 },
+    { x: 1, y: 2 },
+  ],
+  "1>>2": [
+    { x: 1, y: 0 },
+    { x: 1, y: -1 },
+    { x: 0, y: 2 },
+    { x: 1, y: 2 },
+  ],
+  "2>>1": [
+    { x: -1, y: 0 },
+    { x: -1, y: 1 },
+    { x: 0, y: -2 },
+    { x: -1, y: -2 },
+  ],
+  "2>>3": [
+    { x: 1, y: 0 },
+    { x: 1, y: 1 },
+    { x: 0, y: -2 },
+    { x: 1, y: -2 },
+  ],
+  "3>>2": [
+    { x: -1, y: 0 },
+    { x: -1, y: -1 },
+    { x: 0, y: 2 },
+    { x: -1, y: 2 },
+  ],
+  "3>>0": [
+    { x: -1, y: 0 },
+    { x: -1, y: -1 },
+    { x: 0, y: 2 },
+    { x: -1, y: 2 },
+  ],
+  "0>>3": [
+    { x: 1, y: 0 },
+    { x: 1, y: 1 },
+    { x: 0, y: -2 },
+    { x: 1, y: -2 },
+  ],
+};
 
 const O: Shape = {
   positions: [
@@ -8,7 +59,18 @@ const O: Shape = {
     { x: 5, y: 1 },
   ],
   color: "Gold",
-  pivot: { x: 4.5, y: 1.5 },
+  pivot: { x: 4.5, y: 0.5 },
+  rotationIndex: 0,
+  wallKickTable: {
+    "0>>1": [],
+    "1>>0": [],
+    "1>>2": [],
+    "2>>1": [],
+    "2>>3": [],
+    "3>>2": [],
+    "3>>0": [],
+    "0>>3": [],
+  },
 };
 const T: Shape = {
   positions: [
@@ -19,6 +81,8 @@ const T: Shape = {
   ],
   color: "BlueViolet",
   pivot: { x: 4, y: 1 },
+  rotationIndex: 0,
+  wallKickTable: wallKickTable,
 };
 const I: Shape = {
   positions: [
@@ -28,7 +92,58 @@ const I: Shape = {
     { x: 6, y: 0 },
   ],
   color: "LightSkyBlue",
-  pivot: { x: 4.5, y: -0.5 },
+  pivot: { x: 4.5, y: 0.5 },
+  rotationIndex: 0,
+  wallKickTable: {
+    "0>>1": [
+      { x: -2, y: 0 },
+      { x: 1, y: 0 },
+      { x: -2, y: -1 },
+      { x: 1, y: 2 },
+    ],
+    "1>>0": [
+      { x: 2, y: 0 },
+      { x: -1, y: 0 },
+      { x: 2, y: 1 },
+      { x: -1, y: -2 },
+    ],
+    "1>>2": [
+      { x: -1, y: 0 },
+      { x: 2, y: 0 },
+      { x: -1, y: 2 },
+      { x: 2, y: -1 },
+    ],
+    "2>>1": [
+      { x: -1, y: 0 },
+      { x: -2, y: 0 },
+      { x: 1, y: -2 },
+      { x: -2, y: 1 },
+    ],
+    "2>>3": [
+      { x: 2, y: 0 },
+      { x: -1, y: 0 },
+      { x: 2, y: 1 },
+      { x: -1, y: -2 },
+    ],
+    "3>>2": [
+      { x: -2, y: 0 },
+      { x: 1, y: 0 },
+      { x: -2, y: -1 },
+      { x: 1, y: 2 },
+    ],
+    "3>>0": [
+      { x: -1, y: 0 },
+      { x: -2, y: 0 },
+      { x: 1, y: -2 },
+      { x: -2, y: 1 },
+    ],
+    "0>>3": [
+      { x: -1, y: 0 },
+      { x: 2, y: 0 },
+      { x: -1, y: 2 },
+      { x: 2, y: -1 },
+    ],
+  },
 };
 const L: Shape = {
   positions: [
@@ -39,6 +154,8 @@ const L: Shape = {
   ],
   color: "Orange",
   pivot: { x: 4, y: 1 },
+  rotationIndex: 0,
+  wallKickTable: wallKickTable,
 };
 const J: Shape = {
   positions: [
@@ -49,6 +166,8 @@ const J: Shape = {
   ],
   color: "DodgerBlue",
   pivot: { x: 4, y: 1 },
+  rotationIndex: 0,
+  wallKickTable: wallKickTable,
 };
 const S: Shape = {
   positions: [
@@ -59,6 +178,8 @@ const S: Shape = {
   ],
   color: "ForestGreen",
   pivot: { x: 4, y: 1 },
+  rotationIndex: 0,
+  wallKickTable: wallKickTable,
 };
 const Z: Shape = {
   positions: [
@@ -69,6 +190,8 @@ const Z: Shape = {
   ],
   color: "FireBrick",
   pivot: { x: 4, y: 1 },
+  rotationIndex: 0,
+  wallKickTable: wallKickTable,
 };
 
 export function newShape(): Shape {

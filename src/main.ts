@@ -1,10 +1,12 @@
 import { useEffect, useReducer } from "react";
 import { GameState } from "models";
-import { canExistAt, move, rotate, toBlocks } from "utils";
+import { canDrop, move, rotate, toBlocks } from "utils";
 import { newShape } from "Shapes";
 
 export function useGameLoop(): GameState {
-  const [state, dispatch] = useReducer(shapeReducer, {
+  const [state, dispatch] = useReducer<
+    (state: GameState, action: string) => GameState
+  >(shapeReducer, {
     shape: newShape(),
     rubble: [],
   });
@@ -13,18 +15,14 @@ export function useGameLoop(): GameState {
 
   useEffect(() => {
     const tick = setTimeout(() => {
-      if (
-        state.shape.positions.every((pos) =>
-          canExistAt({ ...pos, y: pos.y + 1 }, state.rubble)
-        )
-      ) {
+      if (canDrop(state.shape, state.rubble)) {
         dispatch("ArrowDown");
       } else {
-        dispatch("New");
+        dispatch("Spawn");
       }
     }, 500);
     return () => clearTimeout(tick);
-  }, [state.shape]);
+  }, [state]);
 
   return state;
 }
@@ -53,7 +51,7 @@ function shapeReducer(state: GameState, action: string): GameState {
       return { ...state, shape: rotate(shape, "CW", rubble) };
     case "KeyZ":
       return { ...state, shape: rotate(shape, "CCW", rubble) };
-    case "New":
+    case "Spawn":
       return {
         ...state,
         shape: newShape(),

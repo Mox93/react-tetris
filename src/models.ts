@@ -8,10 +8,16 @@ export interface Block {
   color: string;
 }
 
+export interface WallKickTable {
+  [key: string]: Position[];
+}
+
 export interface Shape {
   positions: Position[];
   color: string;
   pivot: Position;
+  rotationIndex: number;
+  wallKickTable: WallKickTable;
 }
 
 export interface GameState {

@@ -10,13 +10,8 @@ export function toBlocks(shape: Shape): Block[] {
   }));
 }
 
-export function canExistAt(pos: Position, blocks: Block[]): boolean {
-  const verticalCheck = 0 <= pos.y && pos.y < h;
-  const horizontalCheck = 0 <= pos.x && pos.x < w;
-  const collisionCheck = blocks.every(
-    ({ pos: { x, y } }) => !(y === pos.y && x === pos.x)
-  );
-  return verticalCheck && horizontalCheck && collisionCheck;
+export function canDrop(shape: Shape, blocks: Block[]): boolean {
+  return canExist(applyMove(shape, 0, 1), blocks);
 }
 
 export function move(
@@ -27,9 +22,7 @@ export function move(
 ): Shape {
   const newShape = applyMove(shape, dx, dy);
 
-  return newShape.positions.every((pos) => canExistAt(pos, blocks))
-    ? newShape
-    : shape;
+  return canExist(newShape, blocks) ? newShape : shape;
 }
 
 export function rotate(
@@ -38,9 +31,35 @@ export function rotate(
   blocks: Block[]
 ): Shape {
   const newShape = applyRotate(shape, direction);
-  return newShape.positions.every((pos) => canExistAt(pos, blocks))
-    ? newShape
-    : shape;
+  const key: string = `${shape.rotationIndex}>>${newShape.rotationIndex}`;
+
+  if (canExist(newShape, blocks)) {
+    return newShape;
+  } else {
+    for (let kick of shape.wallKickTable[key]) {
+      let altShape = applyMove(newShape, kick.x, kick.y);
+
+      if (canExist(altShape, blocks)) {
+        return altShape;
+      }
+    }
+  }
+
+  return shape;
+}
+
+function canExist(shape: Shape, blocks: Block[]): boolean {
+  return shape.positions.every((pos) => positionChecks(pos, blocks));
+}
+
+function positionChecks(pos: Position, blocks: Block[]): boolean {
+  const verticalCheck = 0 <= pos.y && pos.y < h;
+  const horizontalCheck = 0 <= pos.x && pos.x < w;
+  const collisionCheck = blocks.every(
+    ({ pos: { x, y } }) => !(y === pos.y && x === pos.x)
+  );
+
+  return verticalCheck && horizontalCheck && collisionCheck;
 }
 
 function applyMove(shape: Shape, dx: number, dy: number): Shape {
@@ -73,5 +92,11 @@ function applyRotate(shape: Shape, direction: "CW" | "CCW"): Shape {
           return { x, y };
       }
     }),
+    rotationIndex:
+      direction === "CW"
+        ? (shape.rotationIndex + 1) % 4
+        : direction === "CCW"
+        ? (shape.rotationIndex - 1) % 4
+        : shape.rotationIndex,
   };
 }
