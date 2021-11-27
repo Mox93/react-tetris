@@ -23,6 +23,7 @@ export interface GameState {
   nextShapes: Shape[];
   hold?: Shape;
   canSwap: boolean;
+  tick: number;
   score: number;
   lines: number;
   level: number;

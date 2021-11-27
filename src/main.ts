@@ -10,6 +10,7 @@ const initialState: GameState = {
   grid: [...Array(h)].map(() => [...Array(w)].map(() => null)),
   nextShapes: nextShapes.slice(1),
   canSwap: true,
+  tick: 1000,
   score: 0,
   lines: 0,
   level: 0,
@@ -20,20 +21,8 @@ export function useGameLoop(): GameState {
     (state: GameState, action: string) => GameState
   >(reducer, initialState);
 
-  useControls((event) => dispatch(event.code));
+  const handleKeyDown = (event: KeyboardEvent) => dispatch(event.code);
 
-  useEffect(() => {
-    const drop = setTimeout(
-      () => dispatch("HandleTurn"),
-      Math.max(1000 - 100 * state.level, 100)
-    );
-    return () => clearTimeout(drop);
-  }, [state.shape.pivot.y]);
-
-  return state;
-}
-
-function useControls(handleKeyDown: (event: KeyboardEvent) => void) {
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
 
@@ -41,11 +30,20 @@ function useControls(handleKeyDown: (event: KeyboardEvent) => void) {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  useEffect(() => {
+    const drop = setTimeout(() => dispatch("HandleTurn"), state.tick);
+    return () => clearTimeout(drop);
+  }, [state.shape.pivot.y]);
+
+  return state;
 }
 
 function reducer(state: GameState, action: string): GameState {
-  const { shape, grid, nextShapes, hold } = state;
+  const { shape, grid, nextShapes, hold, score } = state;
   let newShape$: Shape;
+
+  state.tick = Math.max(1000 - 100 * state.level, 100);
 
   switch (action) {
     // KEYBOARD INPUT
@@ -55,11 +53,10 @@ function reducer(state: GameState, action: string): GameState {
       return { ...state, shape: move(shape, 1, 0, grid) };
     case "ArrowDown":
       newShape$ = move(shape, 0, 1, grid);
-
       return {
         ...state,
         shape: newShape$,
-        score: state.score + newShape$.pivot.y - shape.pivot.y,
+        score: score + newShape$.pivot.y - shape.pivot.y,
       };
     case "ArrowUp":
       return { ...state, shape: rotate(shape, "CW", grid) };
@@ -80,7 +77,8 @@ function reducer(state: GameState, action: string): GameState {
       return {
         ...state,
         shape: newShape$,
-        score: state.score + (newShape$.pivot.y - shape.pivot.y) * 2,
+        score: score + (newShape$.pivot.y - shape.pivot.y) * 2,
+        tick: 0,
       };
 
     // GAME LOOP
@@ -90,13 +88,16 @@ function reducer(state: GameState, action: string): GameState {
       return { ...state, shape: move(shape, 0, 1, grid) };
     case "EndTurn":
       const [newGrid, evaluation] = evaluateTurn(shape, grid, state.level);
-
-      return {
-        ...reducer(state, "NextShape"),
-        grid: newGrid,
-        score: state.score + evaluation.score,
-        lines: state.lines + evaluation.lineCount,
-      };
+      return reducer(
+        {
+          ...state,
+          grid: newGrid,
+          score: score + evaluation.score,
+          lines: state.lines + evaluation.lineCount,
+          level: Math.floor((state.lines + evaluation.lineCount) / 10),
+        },
+        "NextShape"
+      );
     case "NextShape":
       return {
         ...state,
