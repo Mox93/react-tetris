@@ -1,50 +1,39 @@
 import { FunctionComponent } from "react";
 import Cell from "Cell";
-import { Block } from "models";
+import { BlockGrid, Shape } from "models";
+import { canDrop, hardDrop, move } from "utils";
 
 interface GridProps {
   cellSize: number;
-  width: number;
-  hight: number;
-  blocks?: Block[];
+  blockGrid: BlockGrid;
+  shape: Shape;
 }
 
-interface CellMeta {
-  size: number;
-  id: string;
-  activeColor?: string;
-}
+const Grid: FunctionComponent<GridProps> = ({ cellSize, blockGrid, shape }) => {
+  const grid = blockGrid.map((row) => [...row]);
+  const shadow = getShadow(shape, grid);
+  const shadowPos: { [key: string]: string } = {};
 
-const Grid: FunctionComponent<GridProps> = ({
-  cellSize,
-  width,
-  hight,
-  blocks = [],
-}) => {
-  const grid: CellMeta[][] = [];
-  for (let y = 0; y < hight; y++) {
-    grid.push([]);
-    for (let x = 0; x < width; x++) {
-      grid[y].push({
-        size: cellSize,
-        id: `${x}${y}`,
-      });
-    }
-  }
+  shape.positions.forEach(({ x, y }) => (grid[y][x] = shape.color));
 
-  for (let { pos, color } of blocks) {
-    grid[pos.y][pos.x].activeColor = color;
+  if (shadow) {
+    shadow.positions.forEach(
+      ({ x, y }) => (shadowPos[`${x}-${y}`] = shape.color)
+    );
   }
 
   return (
     <div className="grid-container">
-      {grid.map((row, idx) => (
-        <div className="grid-row" key={idx}>
-          {row.map((cell) => (
+      {grid.map((row, yIdx) => (
+        <div className="grid-row" key={yIdx}>
+          {row.map((color, xIdx) => (
             <Cell
-              key={cell.id}
-              cellSize={cell.size}
-              activeColor={cell.activeColor}
+              key={xIdx}
+              cellSize={cellSize}
+              {...(color ? { activeColor: color } : {})}
+              {...(shadowPos[`${xIdx}-${yIdx}`]
+                ? { shadowColor: shadowPos[`${xIdx}-${yIdx}`] }
+                : {})}
             />
           ))}
         </div>
@@ -52,5 +41,10 @@ const Grid: FunctionComponent<GridProps> = ({
     </div>
   );
 };
+
+function getShadow(shape: Shape, grid: BlockGrid): Shape | null {
+  let shadow = hardDrop(shape, grid);
+  return shadow.pivot.y !== shape.pivot.y ? shadow : null;
+}
 
 export default Grid;

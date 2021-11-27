@@ -1,45 +1,42 @@
-import { Block, Position, Shape } from "models";
+import { BlockGrid, GameEvaluation, Position, Shape } from "models";
 
 export const w = 10;
 export const h = 20;
 
-export function toBlocks(shape: Shape): Block[] {
-  return shape.positions.map((pos) => ({
-    pos,
-    color: shape.color,
-  }));
-}
+const scorePerLine = [40, 100, 300, 1200];
 
-export function canDrop(shape: Shape, blocks: Block[]): boolean {
-  return canExist(applyMove(shape, 0, 1), blocks);
+export function canDrop(shape: Shape, grid: BlockGrid): boolean {
+  return canExist(applyMove(shape, 0, 1), grid);
 }
 
 export function move(
   shape: Shape,
   dx: number,
   dy: number,
-  blocks: Block[]
+  grid: BlockGrid
 ): Shape {
   const newShape = applyMove(shape, dx, dy);
 
-  return canExist(newShape, blocks) ? newShape : shape;
+  return canExist(newShape, grid) ? newShape : shape;
 }
 
 export function rotate(
   shape: Shape,
   direction: "CW" | "CCW",
-  blocks: Block[]
+  grid: BlockGrid
 ): Shape {
   const newShape = applyRotate(shape, direction);
   const key: string = `${shape.rotationIndex}>>${newShape.rotationIndex}`;
 
-  if (canExist(newShape, blocks)) {
+  if (canExist(newShape, grid)) {
     return newShape;
   } else {
-    for (let kick of shape.wallKickTable[key]) {
+    console.log(key, newShape.wallKickTable[key]);
+
+    for (let kick of newShape.wallKickTable[key]) {
       let altShape = applyMove(newShape, kick.x, kick.y);
 
-      if (canExist(altShape, blocks)) {
+      if (canExist(altShape, grid)) {
         return altShape;
       }
     }
@@ -48,18 +45,67 @@ export function rotate(
   return shape;
 }
 
-function canExist(shape: Shape, blocks: Block[]): boolean {
-  return shape.positions.every((pos) => positionChecks(pos, blocks));
+export function hardDrop(shape: Shape, grid: BlockGrid): Shape {
+  let newShape = shape;
+  while (canDrop(newShape, grid)) {
+    newShape = move(newShape, 0, 1, grid);
+  }
+
+  return newShape;
 }
 
-function positionChecks(pos: Position, blocks: Block[]): boolean {
+export function evaluateTurn(
+  shape: Shape,
+  grid: BlockGrid,
+  level: number
+): [BlockGrid, GameEvaluation] {
+  shape.positions.forEach(({ x, y }) => (grid[y][x] = shape.color));
+
+  const [newGrid, lineCount] = clearRows(grid);
+
+  return [
+    newGrid,
+    {
+      score: lineCount ? scorePerLine[lineCount - 1] * (level + 1) : 0,
+      lineCount: lineCount,
+    },
+  ];
+}
+
+function clearRows(grid: BlockGrid): [BlockGrid, number] {
+  let lineCount = 0;
+  const newGrid: BlockGrid = [];
+
+  grid.forEach((row) => {
+    if (row.filter((color) => color).length === w) {
+      lineCount++;
+    } else {
+      newGrid.push(row);
+    }
+  });
+
+  const dy = grid.length - newGrid.length;
+
+  for (let i = 0; i < dy; i++) {
+    newGrid.unshift([...Array(w)].map(() => null));
+  }
+
+  return [newGrid, lineCount];
+}
+
+function canExist(shape: Shape, grid: BlockGrid): boolean {
+  return shape.positions.every((pos) => positionChecks(pos, grid));
+}
+
+function positionChecks(pos: Position, grid: BlockGrid): boolean {
   const verticalCheck = 0 <= pos.y && pos.y < h;
   const horizontalCheck = 0 <= pos.x && pos.x < w;
-  const collisionCheck = blocks.every(
-    ({ pos: { x, y } }) => !(y === pos.y && x === pos.x)
-  );
 
-  return verticalCheck && horizontalCheck && collisionCheck;
+  if (verticalCheck && horizontalCheck) {
+    return !grid[pos.y][pos.x];
+  }
+
+  return false;
 }
 
 function applyMove(shape: Shape, dx: number, dy: number): Shape {
@@ -76,27 +122,20 @@ function applyMove(shape: Shape, dx: number, dy: number): Shape {
 function applyRotate(shape: Shape, direction: "CW" | "CCW"): Shape {
   return {
     ...shape,
-    positions: shape.positions.map(({ x, y }) => {
-      switch (direction) {
-        case "CW":
-          return {
+    positions: shape.positions.map(({ x, y }) =>
+      direction === "CW"
+        ? {
             x: shape.pivot.x + shape.pivot.y - y,
             y: x + shape.pivot.y - shape.pivot.x,
-          };
-        case "CCW":
-          return {
+          }
+        : {
             x: y + shape.pivot.x - shape.pivot.y,
             y: shape.pivot.y + shape.pivot.x - x,
-          };
-        default:
-          return { x, y };
-      }
-    }),
+          }
+    ),
     rotationIndex:
       direction === "CW"
         ? (shape.rotationIndex + 1) % 4
-        : direction === "CCW"
-        ? (shape.rotationIndex - 1) % 4
-        : shape.rotationIndex,
+        : (shape.rotationIndex + 3) % 4,
   };
 }

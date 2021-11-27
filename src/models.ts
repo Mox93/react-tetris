@@ -1,11 +1,8 @@
+export type BlockGrid = (string | null)[][];
+
 export interface Position {
   x: number;
   y: number;
-}
-
-export interface Block {
-  pos: Position;
-  color: string;
 }
 
 export interface WallKickTable {
@@ -22,5 +19,16 @@ export interface Shape {
 
 export interface GameState {
   shape: Shape;
-  rubble: Block[];
+  grid: BlockGrid;
+  nextShapes: Shape[];
+  hold?: Shape;
+  canSwap: boolean;
+  score: number;
+  lines: number;
+  level: number;
+}
+
+export interface GameEvaluation {
+  score: number;
+  lineCount: number;
 }

@@ -194,6 +194,26 @@ const Z: Shape = {
   wallKickTable: wallKickTable,
 };
 
-export function newShape(): Shape {
-  return [O, T, I, L, J, S, Z][Math.floor(Math.random() * 7)];
+export function newShape(avoidColors: string[] = []): Shape {
+  const shapes = [O, T, I, L, J, S, Z].filter(
+    ({ color }) => !avoidColors.includes(color)
+  );
+  return shapes[Math.floor(Math.random() * shapes.length)];
+}
+
+export function newNextShapes(count: number): Shape[] {
+  const shapes: Shape[] = [];
+
+  for (let i = 0; i < count; i++) {
+    shapes.push(newShape(shapes.map(({ color }) => color)));
+  }
+
+  return shapes;
+}
+
+export function getOriginal(shape: Shape): Shape {
+  const originalShape = [O, T, I, L, J, S, Z].find(
+    ({ color }) => color === shape.color
+  );
+  return originalShape || shape;
 }
