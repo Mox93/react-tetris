@@ -17,13 +17,19 @@ export interface Shape {
   wallKickTable: WallKickTable;
 }
 
+interface NextAction {
+  delay: number;
+  action: string;
+}
+
 export interface GameState {
+  state: "Play" | "Pause" | "GameOver";
   shape: Shape;
   grid: BlockGrid;
   nextShapes: Shape[];
   hold?: Shape;
   canSwap: boolean;
-  tick: number;
+  next: NextAction;
   score: number;
   lines: number;
   level: number;
@@ -32,4 +38,10 @@ export interface GameState {
 export interface GameEvaluation {
   score: number;
   lineCount: number;
+}
+
+export interface Actions {
+  play: () => void;
+  pause: () => void;
+  reset: () => void;
 }

@@ -194,7 +194,7 @@ const Z: Shape = {
   wallKickTable: wallKickTable,
 };
 
-export function newShape(avoidColors: string[] = []): Shape {
+export function spawnShape(avoidColors: string[] = []): Shape {
   const shapes = [O, T, I, L, J, S, Z].filter(
     ({ color }) => !avoidColors.includes(color)
   );
@@ -205,7 +205,7 @@ export function newNextShapes(count: number): Shape[] {
   const shapes: Shape[] = [];
 
   for (let i = 0; i < count; i++) {
-    shapes.push(newShape(shapes.map(({ color }) => color)));
+    shapes.push(spawnShape(shapes.map(({ color }) => color)));
   }
 
   return shapes;

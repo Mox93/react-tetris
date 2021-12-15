@@ -6,6 +6,7 @@ interface ShapeViewerProps {
   size: number;
   title: string;
   shapes?: Shape[];
+  slots?: number;
 }
 
 interface ShapeDrawerProps {
@@ -17,6 +18,7 @@ const ShapeViewer: FunctionComponent<ShapeViewerProps> = ({
   size,
   title,
   shapes = [],
+  slots = 1,
 }) => {
   return (
     <div className="shape-viewer viewer">
@@ -25,7 +27,7 @@ const ShapeViewer: FunctionComponent<ShapeViewerProps> = ({
         className="view"
         style={{
           width: `${size * 5}px`,
-          height: `${size * (shapes.length || 1) * 3}px`,
+          height: `${size * slots * 3}px`,
         }}
       >
         {shapes.map((shape) => (

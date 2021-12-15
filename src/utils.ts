@@ -1,12 +1,26 @@
 import { BlockGrid, GameEvaluation, Position, Shape } from "models";
 
-export const w = 10;
-export const h = 20;
+export const buffer = 2;
+const w = 10;
+const h = 20 + buffer;
 
 const scorePerLine = [40, 100, 300, 1200];
 
+export function emptyGrid(): BlockGrid {
+  return [...Array(h)].map(() => [...Array(w)].map(() => null));
+}
+
 export function canDrop(shape: Shape, grid: BlockGrid): boolean {
   return canExist(applyMove(shape, 0, 1), grid);
+}
+
+export function outOfRange(shape: Shape) {
+  for (let pos of shape.positions) {
+    if (pos.y < buffer) {
+      return true
+    }
+  }
+  return false;
 }
 
 export function move(
@@ -31,8 +45,6 @@ export function rotate(
   if (canExist(newShape, grid)) {
     return newShape;
   } else {
-    console.log(key, newShape.wallKickTable[key]);
-
     for (let kick of newShape.wallKickTable[key]) {
       let altShape = applyMove(newShape, kick.x, kick.y);
 

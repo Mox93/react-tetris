@@ -1,25 +1,35 @@
 import { FunctionComponent } from "react";
 import Cell from "Cell";
 import { BlockGrid, Shape } from "models";
-import { canDrop, hardDrop, move } from "utils";
+import { buffer, hardDrop } from "utils";
 
 interface GridProps {
   cellSize: number;
   blockGrid: BlockGrid;
-  shape: Shape;
+  shape: Shape | null;
 }
 
-const Grid: FunctionComponent<GridProps> = ({ cellSize, blockGrid, shape }) => {
-  const grid = blockGrid.map((row) => [...row]);
-  const shadow = getShadow(shape, grid);
+const Grid: FunctionComponent<GridProps> = ({
+  cellSize,
+  blockGrid,
+  shape,
+  children,
+}) => {
+  const grid = blockGrid.slice(buffer).map((row) => [...row]);
   const shadowPos: { [key: string]: string } = {};
 
-  shape.positions.forEach(({ x, y }) => (grid[y][x] = shape.color));
+  if (shape) {
+    const shadow = getShadow(shape, blockGrid);
 
-  if (shadow) {
-    shadow.positions.forEach(
-      ({ x, y }) => (shadowPos[`${x}-${y}`] = shape.color)
+    shape.positions.forEach(({ x, y }) =>
+      y < buffer ? void 0 : (grid[y - buffer][x] = shape.color)
     );
+
+    if (shadow) {
+      shadow.positions.forEach(
+        ({ x, y }) => (shadowPos[`${x}-${y - buffer}`] = shape.color)
+      );
+    }
   }
 
   return (
@@ -38,6 +48,7 @@ const Grid: FunctionComponent<GridProps> = ({ cellSize, blockGrid, shape }) => {
           ))}
         </div>
       ))}
+      {children}
     </div>
   );
 };

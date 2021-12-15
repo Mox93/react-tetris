@@ -1,11 +1,14 @@
+import GameOverScreen from "GameOverScreen";
 import Grid from "Grid";
 import { useGameLoop } from "main";
+import PlayButton from "PlayButton";
 import ScoreViewer from "ScoreViewer";
 import ShapeViewer from "ShapeViewer";
+import { emptyGrid } from "utils";
 
 function App() {
   const size = 32;
-  const gameState = useGameLoop();
+  const [gameState, actions] = useGameLoop();
 
   return (
     <div className="App">
@@ -15,7 +18,11 @@ function App() {
           <ShapeViewer
             size={size}
             title="HOLD"
-            {...(gameState.hold ? { shapes: [gameState.hold] } : {})}
+            {...(gameState.state === "Pause"
+              ? {}
+              : gameState.hold
+              ? { shapes: [gameState.hold] }
+              : {})}
           />
           <ScoreViewer
             score={gameState.score}
@@ -26,12 +33,28 @@ function App() {
         <div className="viewer">
           <Grid
             cellSize={size}
-            blockGrid={gameState.grid}
-            shape={gameState.shape}
-          />
+            blockGrid={
+              gameState.state === "Pause" ? emptyGrid() : gameState.grid
+            }
+            shape={gameState.state === "Pause" ? null : gameState.shape}
+          >
+            {gameState.state === "Pause" && (
+              <PlayButton resumeGame={actions.play} />
+            )}
+            {gameState.state === "GameOver" && (
+              <GameOverScreen resetGame={actions.reset} />
+            )}
+          </Grid>
         </div>
         <div className="sidebar">
-          <ShapeViewer size={size} title="NEXT" shapes={gameState.nextShapes} />
+          <ShapeViewer
+            size={size}
+            slots={3}
+            title="NEXT"
+            {...(gameState.state === "Pause"
+              ? {}
+              : { shapes: gameState.nextShapes })}
+          />
         </div>
       </div>
     </div>
