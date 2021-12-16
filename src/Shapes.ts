@@ -91,7 +91,7 @@ const I: Shape = {
     { x: 5, y: 0 },
     { x: 6, y: 0 },
   ],
-  color: "LightSkyBlue",
+  color: "SkyBlue",
   pivot: { x: 4.5, y: 0.5 },
   rotationIndex: 0,
   wallKickTable: {
@@ -152,7 +152,7 @@ const L: Shape = {
     { x: 4, y: 1 },
     { x: 5, y: 1 },
   ],
-  color: "Orange",
+  color: "OrangeRed",
   pivot: { x: 4, y: 1 },
   rotationIndex: 0,
   wallKickTable: wallKickTable,

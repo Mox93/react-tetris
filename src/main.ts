@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from "react";
-import { Actions, GameState, Shape } from "models";
+import { Actions, GameState, Shape, PlayState } from "models";
 import {
   canDrop,
   evaluateTurn,
@@ -33,15 +33,11 @@ export function useGameLoop(): [GameState, Actions] {
   const handleKeyDown = (event: KeyboardEvent) => dispatch(event.code);
 
   useEffect(() => {
-    if (state.state === "Play") {
-      document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
 
-      return () => {
-        document.removeEventListener("keydown", handleKeyDown);
-      };
-    } else {
+    return () => {
       document.removeEventListener("keydown", handleKeyDown);
-    }
+    };
   }, [state.state]);
 
   useEffect(() => {
@@ -69,7 +65,7 @@ function reducer(state: GameState, action: string): GameState {
     return state;
   }
 
-  if (state.state === "Pause" && action !== "Play") {
+  if (state.state === "Pause" && !["Play", "Escape"].includes(action)) {
     return state;
   }
 
@@ -121,7 +117,10 @@ function reducer(state: GameState, action: string): GameState {
       };
 
     case "Escape":
-      return { ...state, state: "Pause" };
+      return {
+        ...state,
+        state: toggleState(state.state),
+      };
 
     // GAME LOOP
     case "Play":
@@ -184,6 +183,17 @@ function reducer(state: GameState, action: string): GameState {
         next: { ...state.next, action: "HandleTurn" },
       };
 
+    default:
+      return state;
+  }
+}
+
+function toggleState(state: PlayState): PlayState {
+  switch (state) {
+    case "Pause":
+      return "Play";
+    case "Play":
+      return "Pause";
     default:
       return state;
   }

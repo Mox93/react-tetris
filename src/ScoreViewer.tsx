@@ -12,9 +12,9 @@ const ScoreViewer: FunctionComponent<ScoreViewerProps> = ({
   lines,
 }) => {
   const scores = [
-    ["SCORE", score],
-    ["LEVEL", level],
-    ["LINES", lines],
+    ["score", score],
+    ["level", level],
+    ["lines", lines],
   ];
 
   return (

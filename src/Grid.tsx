@@ -4,17 +4,11 @@ import { BlockGrid, Shape } from "models";
 import { buffer, hardDrop } from "utils";
 
 interface GridProps {
-  cellSize: number;
   blockGrid: BlockGrid;
   shape: Shape | null;
 }
 
-const Grid: FunctionComponent<GridProps> = ({
-  cellSize,
-  blockGrid,
-  shape,
-  children,
-}) => {
+const Grid: FunctionComponent<GridProps> = ({ blockGrid, shape, children }) => {
   const grid = blockGrid.slice(buffer).map((row) => [...row]);
   const shadowPos: { [key: string]: string } = {};
 
@@ -39,7 +33,6 @@ const Grid: FunctionComponent<GridProps> = ({
           {row.map((color, xIdx) => (
             <Cell
               key={xIdx}
-              cellSize={cellSize}
               {...(color ? { activeColor: color } : {})}
               {...(shadowPos[`${xIdx}-${yIdx}`]
                 ? { shadowColor: shadowPos[`${xIdx}-${yIdx}`] }

@@ -11,7 +11,6 @@ interface ShapeViewerProps {
 
 interface ShapeDrawerProps {
   shape: Shape;
-  size: number;
 }
 
 const ShapeViewer: FunctionComponent<ShapeViewerProps> = ({
@@ -31,14 +30,14 @@ const ShapeViewer: FunctionComponent<ShapeViewerProps> = ({
         }}
       >
         {shapes.map((shape) => (
-          <ShapeDrawer key={shape.color} {...{ shape, size }} />
+          <ShapeDrawer key={shape.color} {...{ shape,  }} />
         ))}
       </div>
     </div>
   );
 };
 
-const ShapeDrawer: FunctionComponent<ShapeDrawerProps> = ({ shape, size }) => {
+const ShapeDrawer: FunctionComponent<ShapeDrawerProps> = ({ shape }) => {
   const xs = shape.positions.map(({ x }) => x);
   const ys = shape.positions.map(({ y }) => y);
   const minX = Math.min(...xs);
@@ -58,7 +57,6 @@ const ShapeDrawer: FunctionComponent<ShapeDrawerProps> = ({ shape, size }) => {
           {row.map((color, xIdx) => (
             <Cell
               key={xIdx}
-              cellSize={size}
               {...(color ? { activeColor: color } : {})}
               invisible={!color}
             />

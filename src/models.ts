@@ -22,8 +22,10 @@ interface NextAction {
   action: string;
 }
 
+export type PlayState = "Play" | "Pause" | "GameOver";
+
 export interface GameState {
-  state: "Play" | "Pause" | "GameOver";
+  state: PlayState;
   shape: Shape;
   grid: BlockGrid;
   nextShapes: Shape[];

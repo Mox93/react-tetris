@@ -1,14 +1,12 @@
 import { FunctionComponent } from "react";
 
 interface CellProps {
-  cellSize: number;
   activeColor?: string;
   shadowColor?: string;
   invisible?: boolean;
 }
 
 const Cell: FunctionComponent<CellProps> = ({
-  cellSize,
   activeColor,
   shadowColor,
   invisible = false,
@@ -16,22 +14,22 @@ const Cell: FunctionComponent<CellProps> = ({
   const styling = activeColor
     ? { backgroundColor: activeColor }
     : shadowColor
-    ? {
-        borderColor: shadowColor,
-        boxShadow: `0 0 0 1px ${shadowColor}`,
-        zIndex: 2,
-      }
+    ? { border: `2px solid ${shadowColor}` }
     : {};
-  const classes = `cell ${activeColor ? "active-cell" : ""}`;
 
   return (
     <div
-      {...(invisible ? {} : { className: classes })}
-      style={{
-        width: cellSize,
-        height: cellSize,
-        ...(invisible ? {} : styling),
-      }}
+      className={`cell ${
+        activeColor
+          ? "active"
+          : shadowColor
+          ? "shadow"
+          : invisible
+          ? ""
+          : "visible"
+      }`}
+      data-color={activeColor || shadowColor}
+      style={invisible ? {} : styling}
     />
   );
 };
